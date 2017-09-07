@@ -1,5 +1,8 @@
-var GRASS_TILE = 3
-var WALL_TILE = 1
+var GRASS_TILE = 3;
+var WALL_TILE = 1;
+var PATH_SAFE_TILE = 2;
+var PATH_WARNING_TILE = 6;
+var PATH_DANGER_TILE = 7;
 
 class Map {
   constructor(level) {
@@ -20,7 +23,6 @@ class Map {
     // returns the tile type on the given coordinate
     var colIndex = Math.floor(x / TILE_SIZE);
     var rowIndex = Math.floor(y / TILE_SIZE);
-
     return this.data[rowIndex][colIndex];
   }
 }
