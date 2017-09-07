@@ -21,7 +21,7 @@ function normalize(v) {
   if(mag > 0) {
     return divide(v, mag);
   }
-  return 0;
+  return v;
 }
 
 function subtract(v1, v2) {

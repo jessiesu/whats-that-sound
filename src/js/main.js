@@ -6,14 +6,15 @@ var map;
 var TILE_SIZE = 16;
 var MAP_SIZE_X = 20;
 var MAP_SIZE_Y = 20;
-
+var COLLISION_SIZE = 1;
+var DESTINATION_RANGE = 5
 
 document.addEventListener("mousedown", mouseDown);
 document.addEventListener("mouseup", mouseUp);
 document.addEventListener("mousemove", mouseMove);
 
 function startGame() {
-  player = new Player({ x: 50, y: 50 }, 10, 2);
+  player = new Player({ x: 185, y: 55 }, 10, 2);
   map = new Map(1)
 
   canvas = document.getElementById('gameCanvas');
@@ -27,10 +28,11 @@ function startGame() {
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawMap();
-  drawPlayer();  
+  drawPlayer();
 
   if(player.moving) {
     movePlayer(player.destination)
+    checkPlayerCollision()
   }
 }
 
@@ -74,10 +76,24 @@ function mouseMove(event) {
 }
 
 function movePlayer(destination) {
-  if (distance(player.position, destination) > 5) {
+
+  if (distance(player.position, destination) > DESTINATION_RANGE) {
+    checkPlayerCollision()
+
     var playerPos = player.position;
 
     var delta = subtract(destination, playerPos);
+
+    var xReached = Math.abs(delta.x) < DESTINATION_RANGE
+    var yReached = Math.abs(delta.y) < DESTINATION_RANGE
+
+    if ((!player.availableDir.up && delta.y < 0) || (!player.availableDir.down && delta.y > 0) || yReached) {
+      delta.y = 0;
+    }
+    if ((!player.availableDir.left && delta.x < 0) || (!player.availableDir.right && delta.x > 0) || xReached) {
+      delta.x = 0;
+    }
+
     var norm = normalize(delta);
 
     var newPlayerPos = add(playerPos, multiply(norm, player.speed));
@@ -103,4 +119,15 @@ function createSprite(src) {
   sprite.height = TILE_SIZE;
 
   return sprite;
+}
+
+function checkPlayerCollision() {
+  // player origin is top left
+
+  var playerPos = player.position;
+  console.log((map.getTileFromCoordinates(playerPos.x, playerPos.y)))
+  player.availableDir.left = !(map.getTileFromCoordinates(playerPos.x - COLLISION_SIZE, playerPos.y) == WALL_TILE);
+  player.availableDir.right = !(map.getTileFromCoordinates(playerPos.x + COLLISION_SIZE + TILE_SIZE, playerPos.y) == WALL_TILE);
+  player.availableDir.up = !(map.getTileFromCoordinates(playerPos.x, playerPos.y - COLLISION_SIZE) == WALL_TILE);
+  player.availableDir.down = !(map.getTileFromCoordinates(playerPos.x, playerPos.y + COLLISION_SIZE + TILE_SIZE) == WALL_TILE);
 }

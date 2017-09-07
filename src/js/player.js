@@ -5,6 +5,12 @@ class Player {
     this.speed = speed;
     this.moving = false;
     this.destination = position;
+    this.availableDir = {
+      up: true,
+      down: true,
+      left: true,
+      right: true
+    }
 
     this.spriteAsset = createSprite("assets/img/player.png");
     this.sprite = this.getSpriteTile(90);
