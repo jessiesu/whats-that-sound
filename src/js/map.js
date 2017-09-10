@@ -25,4 +25,16 @@ class Map {
     var rowIndex = Math.floor(y / TILE_SIZE);
     return this.data[rowIndex][colIndex];
   }
+
+  getTileImage(tileName) {
+    switch (tileName) {
+      case 'grass':
+        return { x: 0*TILE_SIZE, y: 1*TILE_SIZE };
+      case 'wall':
+        return { x: 1*TILE_SIZE, y: 1*TILE_SIZE };
+      default:
+        // return a wall by default
+        return { x: 1*TILE_SIZE, y: 1*TILE_SIZE }
+    }
+  }
 }
