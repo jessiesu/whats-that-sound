@@ -3,6 +3,7 @@ var ctx;
 var player;
 var map;
 var camera;
+var hud;
 
 var SCALE = 6;
 var TILE_SIZE = 16;
@@ -21,10 +22,11 @@ document.addEventListener("mousemove", mouseMove);
 
 function startGame() {
   map = new Map(1)
-  player = new Player(map.getPlayerStartPos() || { x: 190, y: 60 }, 10, 4 / SCALE);
+  player = new Player(map.getPlayerStartPos() || { x: 190, y: 60 }, 3, 4 / SCALE);
   camera = new Camera(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT, map.width * TILE_SIZE, map.height * TILE_SIZE, SCALE)
   camera.setDeadZone(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
   camera.follow(player);
+  hud = new Hud(player.life, CANVAS_WIDTH, CANVAS_HEIGHT);
 
   canvas = document.getElementById('gameCanvas');
   canvas.width = CANVAS_WIDTH;
@@ -51,6 +53,7 @@ function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawMap();
   drawPlayer();
+  drawHUD();
 }
 
 function drawPlayer() {
@@ -82,6 +85,20 @@ function drawMap() {
       else {
         ctx.drawImage(map.mapAsset, grass.x, grass.y, TILE_SIZE, TILE_SIZE, (j*TILE_SIZE) - viewport.left, (i*TILE_SIZE) - viewport.top, TILE_SIZE, TILE_SIZE);
       }
+    }
+  }
+}
+
+function drawHUD() {
+  var life = hud.getTileImage('life');
+  var emptyLife = hud.getTileImage('emptyLife');
+  var lifeBarPos = hud.getLifeBarPos();
+  for (var i = 0; i < player.getMaxLife(); i++) {
+    if (i < player.getLife()) {
+      ctx.drawImage(hud.spriteAsset, life.x, life.y, life.width, life.height, lifeBarPos.x + (i * TILE_SIZE / 2), lifeBarPos.y, life.width / 2, life.height / 2);
+    }
+    else {
+      ctx.drawImage(hud.spriteAsset, emptyLife.x, emptyLife.y, emptyLife.width, emptyLife.height, lifeBarPos.x + (i * TILE_SIZE / 2), lifeBarPos.y, emptyLife.width / 2, emptyLife.height / 2);
     }
   }
 }

@@ -1,6 +1,7 @@
 class Player {
   constructor(position, life, speed) {
     this.position = position
+    this.maxLife = life;
     this.life = life;
     this.speed = speed;
     this.moving = false;
@@ -22,6 +23,14 @@ class Player {
 
   setPosition(position) {
     this.position = position;
+  }
+
+  getLife() {
+    return this.life;
+  }
+
+  getMaxLife() {
+    return this.maxLife;
   }
 
   updateSprite(destination) {
