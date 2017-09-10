@@ -1,5 +1,6 @@
-var GRASS_TILE = 3;
-var WALL_TILE = 1;
+var GRASS_TILE = 1;
+var WALL_TILE = 3;
+var PLAYER_START = 5;
 var PATH_SAFE_TILE = 2;
 var PATH_WARNING_TILE = 6;
 var PATH_DANGER_TILE = 7;
@@ -13,6 +14,9 @@ class Map {
 
     this.height = this.data.length;
     this.width = this.data[0].length;
+    this.playerPos = null;
+
+    this.initialize();
   }
 
   getTileFromCoordinates(x, y) {
@@ -35,6 +39,24 @@ class Map {
       default:
         // return a wall by default
         return { x: 1*TILE_SIZE, y: 1*TILE_SIZE }
+    }
+  }
+
+  setPlayerStartPos(position) {
+    this.playerPos = position;
+  }
+
+  getPlayerStartPos() {
+    return this.playerPos;
+  }
+
+  initialize() {
+    for(var i = 0; i < this.height; i++) {
+      for(var j = 0; j < this.width; j++) {
+        if (this.data[i][j] == PLAYER_START && this.getPlayerStartPos() == null) {
+          this.setPlayerStartPos({ x: j*TILE_SIZE, y: i*TILE_SIZE });
+        }
+      }
     }
   }
 }

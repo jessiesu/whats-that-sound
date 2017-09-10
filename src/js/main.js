@@ -4,7 +4,7 @@ var player;
 var map;
 var camera;
 
-var SCALE = 4;
+var SCALE = 6;
 var TILE_SIZE = 16;
 var HALF_TILE = TILE_SIZE / 2;
 var MAP_SIZE_X = 20;
@@ -21,7 +21,7 @@ document.addEventListener("mousemove", mouseMove);
 
 function startGame() {
   map = new Map(1)
-  player = new Player({ x: 190, y: 60 }, 10, 4 / SCALE);
+  player = new Player(map.getPlayerStartPos() || { x: 190, y: 60 }, 10, 4 / SCALE);
   camera = new Camera(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT, map.width * TILE_SIZE, map.height * TILE_SIZE, SCALE)
   camera.setDeadZone(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
   camera.follow(player);
@@ -31,6 +31,8 @@ function startGame() {
   canvas.height = CANVAS_HEIGHT;
   ctx = canvas.getContext('2d');
   ctx.scale(SCALE,SCALE);
+  ctx.mozImageSmoothingEnabled = false;
+  ctx.imageSmoothingEnabled = false;
 
   setInterval(update, 10)
 }
@@ -61,8 +63,6 @@ function drawPlayer() {
 }
 
 function drawMap() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
   var grass = map.getTileImage('grass');
   var wall = map.getTileImage('wall');
 
@@ -75,11 +75,11 @@ function drawMap() {
 
   for(var i = startRow; i < endRow; i++) {
     for(var j = startCol; j < endCol; j++) {
-      if (map.data[i][j] == PATH_SAFE_TILE || map.data[i][j] == PATH_WARNING_TILE || map.data[i][j] == PATH_DANGER_TILE) {
-        ctx.drawImage(map.mapAsset, grass.x, grass.y, TILE_SIZE, TILE_SIZE, (j*TILE_SIZE) - viewport.left, (i*TILE_SIZE) - viewport.top, TILE_SIZE, TILE_SIZE);
+      if (map.data[i][j] == WALL_TILE) {
+        ctx.drawImage(map.mapAsset, wall.x, wall.y, TILE_SIZE, TILE_SIZE, (j*TILE_SIZE) - viewport.left, (i*TILE_SIZE) - viewport.top, TILE_SIZE, TILE_SIZE);
       }
       else {
-        ctx.drawImage(map.mapAsset, wall.x, wall.y, TILE_SIZE, TILE_SIZE, (j*TILE_SIZE) - viewport.left, (i*TILE_SIZE) - viewport.top, TILE_SIZE, TILE_SIZE);
+        ctx.drawImage(map.mapAsset, grass.x, grass.y, TILE_SIZE, TILE_SIZE, (j*TILE_SIZE) - viewport.left, (i*TILE_SIZE) - viewport.top, TILE_SIZE, TILE_SIZE);
       }
     }
   }
@@ -151,18 +151,14 @@ function createSprite(src) {
 
 function checkPlayerCollision() {
   var playerPos = player.getPosition();
+  var playerRect = new Rectangle(playerPos.x - (PLAYER_HITBOX_SIZE / 2), playerPos.y - (PLAYER_HITBOX_SIZE / 2), PLAYER_HITBOX_SIZE, PLAYER_HITBOX_SIZE);
 
-  var playerTopLeft = { x: playerPos.x - (PLAYER_HITBOX_SIZE / 2), y: playerPos.y - (PLAYER_HITBOX_SIZE / 2)};
-  var playerTopRight = { x: playerPos.x + (PLAYER_HITBOX_SIZE / 2), y: playerPos.y - (PLAYER_HITBOX_SIZE / 2)};
-  var playerBottomLeft = { x: playerPos.x - (PLAYER_HITBOX_SIZE / 2), y: playerPos.y + (PLAYER_HITBOX_SIZE / 2)};
-  var playerBottomRight = { x: playerPos.x + (PLAYER_HITBOX_SIZE / 2), y: playerPos.y + (PLAYER_HITBOX_SIZE / 2)};
-
-  player.availableDir.up = !(map.getTileFromCoordinates(playerTopLeft.x, playerTopLeft.y - COLLISION_CHECK_RANGE) == WALL_TILE ||
-                             map.getTileFromCoordinates(playerTopRight.x, playerTopRight.y - COLLISION_CHECK_RANGE) == WALL_TILE)
-  player.availableDir.down = !(map.getTileFromCoordinates(playerBottomLeft.x, playerBottomLeft.y + COLLISION_CHECK_RANGE) == WALL_TILE ||
-                               map.getTileFromCoordinates(playerBottomRight.x, playerBottomRight.y + COLLISION_CHECK_RANGE) == WALL_TILE)
-  player.availableDir.left = !(map.getTileFromCoordinates(playerTopLeft.x - COLLISION_CHECK_RANGE, playerTopLeft.y) == WALL_TILE ||
-                               map.getTileFromCoordinates(playerBottomLeft.x - COLLISION_CHECK_RANGE, playerBottomLeft.y) == WALL_TILE)
-  player.availableDir.right = !(map.getTileFromCoordinates(playerTopRight.x + COLLISION_CHECK_RANGE, playerTopRight.y) == WALL_TILE ||
-                                map.getTileFromCoordinates(playerBottomRight.x + COLLISION_CHECK_RANGE, playerBottomRight.y) == WALL_TILE)
+  player.availableDir.up = !(map.getTileFromCoordinates(playerRect.left, playerRect.top - COLLISION_CHECK_RANGE) == WALL_TILE ||
+                             map.getTileFromCoordinates(playerRect.right, playerRect.top - COLLISION_CHECK_RANGE) == WALL_TILE)
+  player.availableDir.down = !(map.getTileFromCoordinates(playerRect.left, playerRect.bottom + COLLISION_CHECK_RANGE) == WALL_TILE ||
+                               map.getTileFromCoordinates(playerRect.right, playerRect.bottom + COLLISION_CHECK_RANGE) == WALL_TILE)
+  player.availableDir.left = !(map.getTileFromCoordinates(playerRect.left - COLLISION_CHECK_RANGE, playerRect.top) == WALL_TILE ||
+                               map.getTileFromCoordinates(playerRect.left - COLLISION_CHECK_RANGE, playerRect.bottom) == WALL_TILE)
+  player.availableDir.right = !(map.getTileFromCoordinates(playerRect.right + COLLISION_CHECK_RANGE, playerRect.top) == WALL_TILE ||
+                                map.getTileFromCoordinates(playerRect.right + COLLISION_CHECK_RANGE, playerRect.bottom) == WALL_TILE)
 }
