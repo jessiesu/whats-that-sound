@@ -33,9 +33,9 @@ class Map {
   getTileImage(tileName) {
     switch (tileName) {
       case 'grass':
-        return { x: 0*TILE_SIZE, y: 1*TILE_SIZE };
+        return { x: 0*TILE_SIZE, y: 1*TILE_SIZE, width: TILE_SIZE, height: TILE_SIZE };
       case 'wall':
-        return { x: 1*TILE_SIZE, y: 1*TILE_SIZE };
+        return { x: 3*TILE_SIZE, y: 0*TILE_SIZE, width: TILE_SIZE, height: TILE_SIZE * 2 };
       default:
         // return a wall by default
         return { x: 1*TILE_SIZE, y: 1*TILE_SIZE }

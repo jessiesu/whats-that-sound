@@ -68,15 +68,16 @@ function drawMap() {
 
   var viewport = camera.getViewport();
   // draw only visible tiles
-  var startCol = clamp(Math.floor(viewport.left / TILE_SIZE), 0, map.width);
-  var startRow = clamp(Math.floor(viewport.top / TILE_SIZE), 0, map.height);
-  var endCol = clamp(Math.ceil(viewport.right / TILE_SIZE), 0, map.width);
-  var endRow = clamp(Math.ceil(viewport.bottom / TILE_SIZE), 0, map.height);
+  var startCol = clamp(Math.floor(viewport.left / TILE_SIZE) - 1, 0, map.width);
+  var startRow = clamp(Math.floor(viewport.top / TILE_SIZE) - 1, 0, map.height);
+  var endCol = clamp(Math.ceil(viewport.right / TILE_SIZE) + 1, 0, map.width);
+  var endRow = clamp(Math.ceil(viewport.bottom / TILE_SIZE) + 1, 0, map.height);
 
   for(var i = startRow; i < endRow; i++) {
     for(var j = startCol; j < endCol; j++) {
       if (map.data[i][j] == WALL_TILE) {
-        ctx.drawImage(map.mapAsset, wall.x, wall.y, TILE_SIZE, TILE_SIZE, (j*TILE_SIZE) - viewport.left, (i*TILE_SIZE) - viewport.top, TILE_SIZE, TILE_SIZE);
+        ctx.drawImage(map.mapAsset, grass.x, grass.y, grass.width, grass.height, (j*TILE_SIZE) - viewport.left, (i*TILE_SIZE) - viewport.top, grass.width, grass.height);
+        ctx.drawImage(map.mapAsset, wall.x, wall.y, wall.width, wall.height, (j*TILE_SIZE) - viewport.left, ((i*TILE_SIZE) - viewport.top) - TILE_SIZE, wall.width, wall.height);
       }
       else {
         ctx.drawImage(map.mapAsset, grass.x, grass.y, TILE_SIZE, TILE_SIZE, (j*TILE_SIZE) - viewport.left, (i*TILE_SIZE) - viewport.top, TILE_SIZE, TILE_SIZE);
