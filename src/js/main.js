@@ -1,11 +1,12 @@
 var canvas;
 var ctx;
 var player;
+var enemy;
 var map;
 var camera;
 var hud;
 
-var SCALE = 6;
+var SCALE = 8;
 var TILE_SIZE = 16;
 var HALF_TILE = TILE_SIZE / 2;
 var MAP_SIZE_X = 20;
@@ -15,6 +16,7 @@ var COLLISION_CHECK_RANGE = 2;
 var DESTINATION_RANGE = 5;
 var CANVAS_WIDTH = 50 * TILE_SIZE;
 var CANVAS_HEIGHT = 40 * TILE_SIZE;
+var OFFSCREEN = { x: -100, y: -100 }
 
 document.addEventListener("mousedown", mouseDown);
 document.addEventListener("mouseup", mouseUp);
@@ -23,6 +25,7 @@ document.addEventListener("mousemove", mouseMove);
 function startGame() {
   map = new Map(1)
   player = new Player(map.getPlayerStartPos() || { x: 190, y: 60 }, 3, 4 / SCALE);
+  enemy = new Enemy(OFFSCREEN);
   camera = new Camera(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT, map.width * TILE_SIZE, map.height * TILE_SIZE, SCALE)
   camera.setDeadZone(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
   camera.follow(player);
@@ -44,15 +47,19 @@ function update() {
   draw();
 
   if(player.moving) {
-    movePlayer(player.destination)
-    checkPlayerCollision()
+    movePlayer(player.destination);
+    checkPlayerCollision();
   }
+
+  checkPlayerPath();
 }
 
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawMap();
+  drawMap(GRASS_TILE);
   drawPlayer();
+  drawMap(WALL_TILE);
+  drawEnemy();
   drawHUD();
 }
 
@@ -65,7 +72,7 @@ function drawPlayer() {
   ctx.drawImage(player.spriteAsset, player.sprite.x, player.sprite.y, TILE_SIZE, TILE_SIZE, position.x, position.y, TILE_SIZE, TILE_SIZE);
 }
 
-function drawMap() {
+function drawMap(tileType) {
   var grass = map.getTileImage('grass');
   var wall = map.getTileImage('wall');
 
@@ -78,15 +85,24 @@ function drawMap() {
 
   for(var i = startRow; i < endRow; i++) {
     for(var j = startCol; j < endCol; j++) {
-      if (map.data[i][j] == WALL_TILE) {
+      if (tileType == WALL_TILE && map.data[i][j] == WALL_TILE) {
         ctx.drawImage(map.mapAsset, grass.x, grass.y, grass.width, grass.height, (j*TILE_SIZE) - viewport.left, (i*TILE_SIZE) - viewport.top, grass.width, grass.height);
         ctx.drawImage(map.mapAsset, wall.x, wall.y, wall.width, wall.height, (j*TILE_SIZE) - viewport.left, ((i*TILE_SIZE) - viewport.top) - TILE_SIZE, wall.width, wall.height);
       }
-      else {
+      else if (tileType == GRASS_TILE){
         ctx.drawImage(map.mapAsset, grass.x, grass.y, TILE_SIZE, TILE_SIZE, (j*TILE_SIZE) - viewport.left, (i*TILE_SIZE) - viewport.top, TILE_SIZE, TILE_SIZE);
       }
     }
   }
+}
+
+function drawEnemy() {
+  var position = {};
+  position.x = enemy.getPosition().x - HALF_TILE;
+  position.y = enemy.getPosition().y - HALF_TILE;
+
+  position = camera.getWorldToScreenPos(position.x, position.y)
+  ctx.drawImage(enemy.spriteAsset, enemy.sprite.x, enemy.sprite.y, TILE_SIZE, TILE_SIZE, position.x, position.y, TILE_SIZE, TILE_SIZE);
 }
 
 function drawHUD() {
@@ -101,6 +117,9 @@ function drawHUD() {
       ctx.drawImage(hud.spriteAsset, emptyLife.x, emptyLife.y, emptyLife.width, emptyLife.height, lifeBarPos.x + (i * TILE_SIZE / 2), lifeBarPos.y, emptyLife.width / 2, emptyLife.height / 2);
     }
   }
+
+  // timer
+
 }
 
 function clamp(num, min, max) {
@@ -179,4 +198,15 @@ function checkPlayerCollision() {
                                map.getTileFromCoordinates(playerRect.left - COLLISION_CHECK_RANGE, playerRect.bottom) == WALL_TILE)
   player.availableDir.right = !(map.getTileFromCoordinates(playerRect.right + COLLISION_CHECK_RANGE, playerRect.top) == WALL_TILE ||
                                 map.getTileFromCoordinates(playerRect.right + COLLISION_CHECK_RANGE, playerRect.bottom) == WALL_TILE)
+}
+
+function checkPlayerPath() {
+  var position = player.getPosition();
+  if (map.getTileFromCoordinates(position.x, position.y) == PATH_WARNING_TILE) {
+    console.log('warning');
+  }
+  else if (map.getTileFromCoordinates(position.x, position.y) == PATH_DANGER_TILE) {
+    console.log('danger zone');
+  }
+
 }

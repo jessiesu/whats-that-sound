@@ -1,23 +1,11 @@
 class Hud {
   constructor(life, canvasWidth, canvasHeight) {
     this.life = life;
-    this.maxLife = life;
-
     this.spriteAsset = createSprite("assets/img/hud.png");
 
     this.lifeBarRect = new Rectangle(2, 2, TILE_SIZE * life, TILE_SIZE);
-  }
 
-  setLife(life) {
-    this.life = life;
-  }
-
-  getLife() {
-    return this.maxLife;
-  }
-
-  getMaxLife() {
-    return this.maxLife;
+    this.ctx = ctx;
   }
 
   setLifeBarPos(x, y) {
