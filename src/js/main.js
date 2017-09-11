@@ -5,6 +5,7 @@ var enemy;
 var map;
 var camera;
 var hud;
+var enemySpawnId = null;
 
 var SCALE = 8;
 var TILE_SIZE = 16;
@@ -17,6 +18,8 @@ var DESTINATION_RANGE = 5;
 var CANVAS_WIDTH = 50 * TILE_SIZE;
 var CANVAS_HEIGHT = 40 * TILE_SIZE;
 var OFFSCREEN = { x: -100, y: -100 }
+var WARNING_TIME = 5000;
+var DANGER_TIME = 2000;
 
 document.addEventListener("mousedown", mouseDown);
 document.addEventListener("mouseup", mouseUp);
@@ -97,11 +100,7 @@ function drawMap(tileType) {
 }
 
 function drawEnemy() {
-  var position = {};
-  position.x = enemy.getPosition().x - HALF_TILE;
-  position.y = enemy.getPosition().y - HALF_TILE;
-
-  position = camera.getWorldToScreenPos(position.x, position.y)
+  var position = camera.getWorldToScreenPos(enemy.position.x - HALF_TILE, enemy.position.y - HALF_TILE)
   ctx.drawImage(enemy.spriteAsset, enemy.sprite.x, enemy.sprite.y, TILE_SIZE, TILE_SIZE, position.x, position.y, TILE_SIZE, TILE_SIZE);
 }
 
@@ -117,9 +116,6 @@ function drawHUD() {
       ctx.drawImage(hud.spriteAsset, emptyLife.x, emptyLife.y, emptyLife.width, emptyLife.height, lifeBarPos.x + (i * TILE_SIZE / 2), lifeBarPos.y, emptyLife.width / 2, emptyLife.height / 2);
     }
   }
-
-  // timer
-
 }
 
 function clamp(num, min, max) {
@@ -202,11 +198,41 @@ function checkPlayerCollision() {
 
 function checkPlayerPath() {
   var position = player.getPosition();
+  var currentTile = player.currentTile;
+  var lastTile = player.lastTile;
+
   if (map.getTileFromCoordinates(position.x, position.y) == PATH_WARNING_TILE) {
-    console.log('warning');
+    if (currentTile == PATH_SAFE_TILE) {
+      enemy.startSpawnTime = (new Date()).getTime();
+      enemySpawnId =  setTimeout(function() { playerEnemyInteraction() }, WARNING_TIME);
+    }
+
+    player.currentTile = PATH_WARNING_TILE;
   }
   else if (map.getTileFromCoordinates(position.x, position.y) == PATH_DANGER_TILE) {
-    console.log('danger zone');
-  }
+    if (currentTile == PATH_SAFE_TILE) {
+      enemy.startSpawnTime = (new Date()).getTime();
+      enemySpawnId =  setTimeout(function() { playerEnemyInteraction() }, DANGER_TIME);
+    }
+    else if (currentTile == PATH_WARNING_TILE) {
+      // get time passed
+      var timePassed = (new Date()).getTime() - enemy.startSpawnTime;
+      if (timePassed < (WARNING_TIME - DANGER_TIME)) {
+        clearTimeout(enemySpawnId);
+        enemySpawnId =  setTimeout(function() { playerEnemyInteraction() }, DANGER_TIME);
+      }
+    }
 
+    player.currentTile = PATH_DANGER_TILE;
+  }
+  else {
+    if (enemySpawnId != null)
+      clearTimeout(enemySpawnId);
+    player.currentTile = PATH_SAFE_TILE;
+  }
+}
+
+function playerEnemyInteraction() {
+  enemy.spawn(player.getPosition());
+  player.takeDamage();
 }

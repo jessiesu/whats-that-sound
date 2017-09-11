@@ -15,6 +15,8 @@ class Player {
 
     this.spriteAsset = createSprite("assets/img/player.png");
     this.sprite = this.getSpriteTile(90);
+    this.currentTile = PATH_SAFE_TILE;
+    this.lastTile = PATH_SAFE_TILE;
   }
 
   getPosition() {
@@ -31,6 +33,12 @@ class Player {
 
   getMaxLife() {
     return this.maxLife;
+  }
+
+  takeDamage() {
+    if (this.life > 0) {
+      this.life--;
+    }
   }
 
   updateSprite(destination) {
