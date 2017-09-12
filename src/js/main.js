@@ -6,8 +6,12 @@ var map;
 var camera;
 var hud;
 var enemySpawnId = null;
+var sfxLoopId = null;
 
-var SCALE = 8;
+var sfx_playerHit = createSFX([3,,0.0707,,0.2685,0.7213,,-0.3051,,,,,,,,,,,1,,,,,0.5]);
+var sfx_warning = createSFX([0,,0.1884,,0.0365,0.464,,,,,,,,0.3026,,,,,1,,,0.1,,0.28]);
+
+var SCALE = 6;
 var TILE_SIZE = 16;
 var HALF_TILE = TILE_SIZE / 2;
 var MAP_SIZE_X = 20;
@@ -50,7 +54,7 @@ function update() {
   draw();
 
   if(player.moving) {
-    movePlayer(player.destination);
+    movePlayer(camera.getScreenToWorldPos(player.destination.x, player.destination.y));
     checkPlayerCollision();
   }
 
@@ -125,8 +129,7 @@ function clamp(num, min, max) {
 // Input
 function mouseDown(event) {
   player.moving = true;
-  var mousePos = getMousePos(canvas, event);
-  player.destination = camera.getScreenToWorldPos(mousePos.x, mousePos.y);
+  player.destination = getMousePos(canvas, event);;
 }
 
 function mouseUp(event) {
@@ -135,8 +138,7 @@ function mouseUp(event) {
 
 function mouseMove(event) {
   if(player.moving) {
-    var mousePos = getMousePos(canvas, event);
-    player.destination = camera.getScreenToWorldPos(mousePos.x, mousePos.y);
+    player.destination = getMousePos(canvas, event);;
   }
 }
 
@@ -182,6 +184,12 @@ function createSprite(src) {
   return sprite;
 }
 
+function createSFX(soundURL) {
+  var audio = new Audio();
+  audio.src = jsfxr(soundURL);
+  return audio;
+}
+
 function checkPlayerCollision() {
   var playerPos = player.getPosition();
   var playerRect = new Rectangle(playerPos.x - (PLAYER_HITBOX_SIZE / 2), playerPos.y - (PLAYER_HITBOX_SIZE / 2), PLAYER_HITBOX_SIZE, PLAYER_HITBOX_SIZE);
@@ -204,7 +212,12 @@ function checkPlayerPath() {
   if (map.getTileFromCoordinates(position.x, position.y) == PATH_WARNING_TILE) {
     if (currentTile == PATH_SAFE_TILE) {
       enemy.startSpawnTime = (new Date()).getTime();
+
       enemySpawnId =  setTimeout(function() { playerEnemyInteraction() }, WARNING_TIME);
+      if (!sfxLoopId) {
+        console.log(sfxLoopId)
+        sfxLoopId = setInterval(function() { playWarningLoop(500 / WARNING_TIME) }, 500);
+      }
     }
 
     player.currentTile = PATH_WARNING_TILE;
@@ -213,6 +226,9 @@ function checkPlayerPath() {
     if (currentTile == PATH_SAFE_TILE) {
       enemy.startSpawnTime = (new Date()).getTime();
       enemySpawnId =  setTimeout(function() { playerEnemyInteraction() }, DANGER_TIME);
+      console.log(DANGER_TIME / 1000000)
+      if (!sfxLoopId)
+        sfxLoopId = setInterval(function() { playWarningLoop(300 / DANGER_TIME) }, 300);
     }
     else if (currentTile == PATH_WARNING_TILE) {
       // get time passed
@@ -221,18 +237,41 @@ function checkPlayerPath() {
         clearTimeout(enemySpawnId);
         enemySpawnId =  setTimeout(function() { playerEnemyInteraction() }, DANGER_TIME);
       }
+
+      clearInterval(sfxLoopId);
+      sfxLoopId = null;
+      sfxLoopId = setInterval(function() { playWarningLoop(300 / DANGER_TIME) }, 300)
     }
 
     player.currentTile = PATH_DANGER_TILE;
   }
   else {
-    if (enemySpawnId != null)
-      clearTimeout(enemySpawnId);
+    clearTimeout(enemySpawnId);
+    clearInterval(sfxLoopId);
+    sfxLoopId = null;
     player.currentTile = PATH_SAFE_TILE;
+    sfx_warning.volume = 0;
   }
 }
 
 function playerEnemyInteraction() {
   enemy.spawn(player.getPosition());
   player.takeDamage();
+  sfx_playerHit.play();
+  clearInterval(sfxLoopId);
+}
+
+function increaseVolume(sfx, step) {
+  sfx.volume += step;
+}
+
+function playWarningLoop(volumeStep) {
+
+  sfx_warning.play();
+  if ((sfx_warning.volume + volumeStep) >= 1)
+    sfx_warning.volume = 1;
+  else
+    sfx_warning.volume += volumeStep;
+
+  console.log(sfxLoopId)
 }
