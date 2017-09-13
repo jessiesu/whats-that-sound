@@ -1,10 +1,10 @@
 var FLOOR_TILE = 1
+var SAFE_TILE = 2
 var WALL_TILE = null
 var PLAYER_START = 5
-var PATH_SAFE_TILE = 2
-var EXIT_TILE = 4
-var PATH_WARNING_TILE = 6
-var PATH_DANGER_TILE = 7
+var WIN_TILE = 4
+var WARNING_TILE = 6
+var DANGER_TILE = 7
 
 class Map {
   constructor(level) {
@@ -29,18 +29,6 @@ class Map {
     var colIndex = Math.floor(x / TILE_SIZE)
     var rowIndex = Math.floor(y / TILE_SIZE)
     return this.data[rowIndex][colIndex]
-  }
-
-  getTileImage(tileName) {
-    switch (tileName) {
-      case 'grass':
-        return { x: 0*TILE_SIZE, y: 0*TILE_SIZE, width: TILE_SIZE, height: TILE_SIZE }
-      case 'wall':
-        return { x: 3*TILE_SIZE, y: 0*TILE_SIZE, width: TILE_SIZE, height: TILE_SIZE * 2 }
-      default:
-        // return a wall by default
-        return { x: 1*TILE_SIZE, y: 1*TILE_SIZE }
-    }
   }
 
   initialize() {

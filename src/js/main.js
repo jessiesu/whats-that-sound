@@ -8,7 +8,7 @@ var hud
 var enemySpawnId = null
 var sfxLoopId = null
 var inputLocked = false
-var gameState = STATE_INTRO
+var gameState = STATE_PLAY
 
 var sfx_playerHit = createSFX([3,,0.0707,,0.2685,0.7213,,-0.3051,,,,,,,,,,,1,,,,,0.5])
 var sfx_warning = createSFX([0,,0.1884,,0.0365,0.464,,,,,,,,0.3026,,,,,1,,,0.1,,0.28])
@@ -23,10 +23,10 @@ var MAP_SIZE_Y = 20
 var PLAYER_HITBOX_SIZE = 12
 var COLLISION_CHECK_RANGE = 2
 var DESTINATION_RANGE = 5
-var CANVAS_WIDTH = 50 * TILE_SIZE
-var CANVAS_HEIGHT = 40 * TILE_SIZE
+var CANVAS_WIDTH = 80 * TILE_SIZE
+var CANVAS_HEIGHT = 60 * TILE_SIZE
 var OFFSCREEN = { x: -100, y: -100 }
-var WARNING_TIME = 3000
+var WARNING_TIME = 2500
 var DANGER_TIME = 1500
 var STATE_INTRO = 0
 var STATE_PLAY = 1
@@ -70,15 +70,16 @@ function update() {
 
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height)
-  drawMap(FLOOR_TILE)
-  drawPlayer()
-  drawMap(WALL_TILE)
-  drawEnemy()
+//  drawMap(FLOOR_TILE)
 
+  drawMap(WALL_TILE)
+
+  drawPlayer()
   ctx.fillStyle = '#100'
   ctx.globalAlpha = 0.6
   ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
   ctx.globalAlpha = 1
+  drawEnemy()
 
   drawHUD()
 }
@@ -111,8 +112,12 @@ function drawPlayer() {
 }
 
 function drawMap(tileType) {
-  var grass = map.getTileImage('grass')
-  var wall = map.getTileImage('wall')
+
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
+
+  var wall = { x: 3*TILE_SIZE, y: 0*TILE_SIZE }
+  var win = { x: 1*TILE_SIZE, y: 1*TILE_SIZE }
 
   var viewport = camera.getViewport()
   // draw only visible tiles
@@ -123,10 +128,11 @@ function drawMap(tileType) {
 
   for(var i = startRow; i < endRow; i++) {
     for(var j = startCol; j < endCol; j++) {
-      if (tileType == WALL_TILE && map.data[i][j] == WALL_TILE) {
-        ctx.fillRect((j*TILE_SIZE) - viewport.left, ((i*TILE_SIZE) - viewport.top), TILE_SIZE, TILE_SIZE)
+      if (map.data[i][j] == WIN_TILE) {
+        ctx.drawImage(map.mapAsset, 2 * TILE_SIZE, TILE_SIZE, TILE_SIZE, TILE_SIZE, (j*TILE_SIZE) - viewport.left, (i*TILE_SIZE) - viewport.top, TILE_SIZE, TILE_SIZE)
+        ctx.drawImage(map.mapAsset, 1 * TILE_SIZE, 1 * TILE_SIZE, TILE_SIZE, TILE_SIZE, (j*TILE_SIZE) - viewport.left, (i*TILE_SIZE) - viewport.top, TILE_SIZE, TILE_SIZE)
       }
-      else if (tileType == FLOOR_TILE){
+      else if (map.data[i][j] != WALL_TILE) {
         ctx.drawImage(map.mapAsset, 2 * TILE_SIZE, TILE_SIZE, TILE_SIZE, TILE_SIZE, (j*TILE_SIZE) - viewport.left, (i*TILE_SIZE) - viewport.top, TILE_SIZE, TILE_SIZE)
       }
     }
@@ -241,8 +247,8 @@ function checkPlayerPath() {
   var currentTile = player.currentTile
   var lastTile = player.lastTile
 
-  if (map.getTileFromCoordinates(position.x, position.y) == PATH_WARNING_TILE) {
-    if (currentTile == PATH_SAFE_TILE) {
+  if (map.getTileFromCoordinates(position.x, position.y) == WARNING_TILE) {
+    if (currentTile == SAFE_TILE) {
       enemy.startSpawnTime = (new Date()).getTime()
 
       enemySpawnId =  setTimeout(function() { playerEnemyInteraction() }, WARNING_TIME)
@@ -251,16 +257,16 @@ function checkPlayerPath() {
       }
     }
 
-    player.currentTile = PATH_WARNING_TILE
+    player.currentTile = WARNING_TILE
   }
-  else if (map.getTileFromCoordinates(position.x, position.y) == PATH_DANGER_TILE) {
-    if (currentTile == PATH_SAFE_TILE) {
+  else if (map.getTileFromCoordinates(position.x, position.y) == DANGER_TILE) {
+    if (currentTile == SAFE_TILE) {
       enemy.startSpawnTime = (new Date()).getTime()
       enemySpawnId =  setTimeout(function() { playerEnemyInteraction() }, DANGER_TIME)
       if (!sfxLoopId)
         sfxLoopId = setInterval(function() { playWarningLoop(300 / DANGER_TIME) }, 300)
     }
-    else if (currentTile == PATH_WARNING_TILE) {
+    else if (currentTile == WARNING_TILE) {
       // get time passed
       var timePassed = (new Date()).getTime() - enemy.startSpawnTime
       if (timePassed < (WARNING_TIME - DANGER_TIME)) {
@@ -273,17 +279,16 @@ function checkPlayerPath() {
       sfxLoopId = setInterval(function() { playWarningLoop(300 / DANGER_TIME) }, 300)
     }
 
-    player.currentTile = PATH_DANGER_TILE
+    player.currentTile = DANGER_TILE
   }
-  else if (map.getTileFromCoordinates(position.x, position.y) == EXIT_TILE && gameState == STATE_PLAY) {
+  else if (map.getTileFromCoordinates(position.x, position.y) == WIN_TILE && gameState == STATE_PLAY) {
     gameEnd(true)
-
   }
   else {
     clearTimeout(enemySpawnId)
     clearInterval(sfxLoopId)
     sfxLoopId = null
-    player.currentTile = PATH_SAFE_TILE
+    player.currentTile = SAFE_TILE
     sfx_warning.volume = 0
   }
 }

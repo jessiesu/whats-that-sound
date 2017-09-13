@@ -16,8 +16,8 @@ class Player {
 
     this.spriteAsset = createSprite("assets/img/sprites.png")
     this.sprite = this.getSpriteTile(90)
-    this.currentTile = PATH_SAFE_TILE
-    this.lastTile = PATH_SAFE_TILE
+    this.currentTile = SAFE_TILE
+    this.lastTile = SAFE_TILE
   }
 
   takeDamage() {
