@@ -1,15 +1,15 @@
 class Hud {
   constructor(life, canvasWidth, canvasHeight) {
-    this.life = life;
-    this.spriteAsset = createSprite("assets/img/hud.png");
+    this.life = life
+    this.spriteAsset = createSprite("assets/img/hud.png")
 
-    this.lifeBarRect = new Rectangle(2, 2, TILE_SIZE * life, TILE_SIZE);
+    this.lifeBarRect = new Rectangle(2, 2, TILE_SIZE * life, TILE_SIZE)
 
-    this.ctx = ctx;
+    this.ctx = ctx
   }
 
   setLifeBarPos(x, y) {
-    this.lifeBarRect.set(x, y);
+    this.lifeBarRect.set(x, y)
   }
 
   getLifeBarPos() {
@@ -20,11 +20,11 @@ class Hud {
   getTileImage(tileName) {
     switch (tileName) {
       case 'life':
-        return { x: 0*TILE_SIZE, y: 0*TILE_SIZE, width: TILE_SIZE, height: TILE_SIZE };
+        return { x: 0*TILE_SIZE, y: 0*TILE_SIZE, width: TILE_SIZE, height: TILE_SIZE }
       case 'emptyLife':
-        return { x: 1*TILE_SIZE, y: 0*TILE_SIZE, width: TILE_SIZE, height: TILE_SIZE };
+        return { x: 1*TILE_SIZE, y: 0*TILE_SIZE, width: TILE_SIZE, height: TILE_SIZE }
       default:
-        return { x: 0*TILE_SIZE, y: 0*TILE_SIZE, width: TILE_SIZE, height: TILE_SIZE };
+        return { x: 0*TILE_SIZE, y: 0*TILE_SIZE, width: TILE_SIZE, height: TILE_SIZE }
     }
   }
 }

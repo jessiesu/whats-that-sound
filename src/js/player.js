@@ -2,11 +2,11 @@ class Player {
   constructor(position, life, speed) {
     this.startPos = position
     this.position = position
-    this.maxLife = life;
-    this.life = life;
-    this.speed = speed;
-    this.moving = false;
-    this.destination = position;
+    this.maxLife = life
+    this.life = life
+    this.speed = speed
+    this.moving = false
+    this.destination = position
     this.availableDir = {
       up: true,
       down: true,
@@ -14,33 +14,33 @@ class Player {
       right: true
     }
 
-    this.spriteAsset = createSprite("assets/img/sprites.png");
-    this.sprite = this.getSpriteTile(90);
-    this.currentTile = PATH_SAFE_TILE;
-    this.lastTile = PATH_SAFE_TILE;
+    this.spriteAsset = createSprite("assets/img/sprites.png")
+    this.sprite = this.getSpriteTile(90)
+    this.currentTile = PATH_SAFE_TILE
+    this.lastTile = PATH_SAFE_TILE
   }
 
   getPosition() {
-    return this.position;
+    return this.position
   }
 
   setPosition(position) {
-    this.position = position;
+    this.position = position
   }
 
   getMaxLife() {
-    return this.maxLife;
+    return this.maxLife
   }
 
   takeDamage() {
     if (this.life > 0) {
-      this.life--;
+      this.life--
     }
   }
 
   updateSprite(destination) {
-    var angleDeg = Math.atan2(destination.y - this.position.y, destination.x -this.position.x) * 180 / Math.PI;
-    this.sprite = this.getSpriteTile(angleDeg);
+    var angleDeg = Math.atan2(destination.y - this.position.y, destination.x -this.position.x) * 180 / Math.PI
+    this.sprite = this.getSpriteTile(angleDeg)
   }
 
   getSpriteTile(degree) {

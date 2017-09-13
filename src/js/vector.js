@@ -3,13 +3,12 @@ var ZERO_VECTOR = {
   y: 0
 }
 
-
 // distance between two vectors
 function distance(v1, v2) {
-  var a = v1.x - v2.x;
-  var b = v1.y - v2.y;
+  var a = v1.x - v2.x
+  var b = v1.y - v2.y
 
-  return Math.sqrt( a*a + b*b );
+  return Math.sqrt( a*a + b*b )
 }
 
 function magnitude(v) {
@@ -19,9 +18,9 @@ function magnitude(v) {
 function normalize(v) {
   var mag = magnitude(v)
   if(mag > 0) {
-    return divide(v, mag);
+    return divide(v, mag)
   }
-  return v;
+  return v
 }
 
 function subtract(v1, v2) {
