@@ -11,10 +11,6 @@ class Enemy {
   spawn(position) {
     this.position = position
     var that = this
-    this.hideId = setTimeout(function() { that.hide() }, this.onscreenTime)
-  }
-
-  hide() {
-    this.position = OFFSCREEN
+    this.hideId = setTimeout(function() { that.position = OFFSCREEN }, this.onscreenTime)
   }
 }

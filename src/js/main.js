@@ -38,7 +38,7 @@ document.addEventListener("mousemove", mouseMove)
 
 function startGame() {
   map = new Map(1)
-  player = new Player(map.getPlayerStartPos() || { x: 190, y: 60 }, 3, 3 / SCALE)
+  player = new Player(map.playerPos || { x: 190, y: 60 }, 3, 3 / SCALE)
   enemy = new Enemy(OFFSCREEN)
   camera = new Camera(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT, map.width * TILE_SIZE, map.height * TILE_SIZE, SCALE)
   camera.setDeadZone(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2)
@@ -101,8 +101,8 @@ function drawLight(x, y, radius, color) {
 
 function drawPlayer() {
   var position = {}
-  position.x = player.getPosition().x - HALF_TILE
-  position.y = player.getPosition().y - HALF_TILE
+  position.x = player.position.x - HALF_TILE
+  position.y = player.position.y - HALF_TILE
   position = camera.getWorldToScreenPos(position.x, position.y)
 
   drawLight(position.x + HALF_TILE, position.y + HALF_TILE, 30)
@@ -142,7 +142,7 @@ function drawHUD() {
   var life = hud.getTileImage('life')
   var emptyLife = hud.getTileImage('emptyLife')
   var lifeBarPos = hud.getLifeBarPos()
-  for (var i = 0; i < player.getMaxLife(); i++) {
+  for (var i = 0; i < player.maxLife; i++) {
     if (i < player.life) {
       ctx.drawImage(hud.spriteAsset, life.x, life.y, life.width, life.height, lifeBarPos.x + (i * TILE_SIZE / 2), lifeBarPos.y, life.width / 2, life.height / 2)
     }
@@ -176,8 +176,8 @@ function mouseMove(event) {
 
 function movePlayer(destination) {
   // coordinates need to be scaled down
-  if (distance(player.getPosition(), destination) > DESTINATION_RANGE) {
-    var playerPos = player.getPosition()
+  if (distance(player.position, destination) > DESTINATION_RANGE) {
+    var playerPos = player.position
     var delta = subtract(destination, playerPos)
 
     var xReached = Math.abs(delta.x) < DESTINATION_RANGE
@@ -193,7 +193,7 @@ function movePlayer(destination) {
     var norm = normalize(delta)
     var newPlayerPos = add(playerPos, multiply(norm, player.speed))
 
-    player.setPosition(newPlayerPos)
+    player.position = newPlayerPos
     player.updateSprite(destination)
   }
 }
@@ -223,7 +223,7 @@ function createSFX(soundURL) {
 }
 
 function checkPlayerCollision() {
-  var playerPos = player.getPosition()
+  var playerPos = player.position
   var playerRect = new Rectangle(playerPos.x - (PLAYER_HITBOX_SIZE / 2), playerPos.y - (PLAYER_HITBOX_SIZE / 2), PLAYER_HITBOX_SIZE, PLAYER_HITBOX_SIZE)
 
   player.availableDir.up = !(map.getTileFromCoordinates(playerRect.left, playerRect.top - COLLISION_CHECK_RANGE) == WALL_TILE ||
@@ -237,7 +237,7 @@ function checkPlayerCollision() {
 }
 
 function checkPlayerPath() {
-  var position = player.getPosition()
+  var position = player.position
   var currentTile = player.currentTile
   var lastTile = player.lastTile
 
@@ -289,7 +289,7 @@ function checkPlayerPath() {
 }
 
 function playerEnemyInteraction() {
-  enemy.spawn(player.getPosition())
+  enemy.spawn(player.position)
   player.takeDamage()
   sfx_playerHit.play()
   clearInterval(sfxLoopId)
@@ -325,7 +325,7 @@ function gameEnd(success) {
 
 function restartGame() {
   player.life = player.maxLife
-  player.position = map.getPlayerStartPos()
+  player.position = map.playerPos
   player.destination = null
   sfx_warning.volume = 0
   lockInput(false)

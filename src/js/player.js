@@ -20,18 +20,6 @@ class Player {
     this.lastTile = PATH_SAFE_TILE
   }
 
-  getPosition() {
-    return this.position
-  }
-
-  setPosition(position) {
-    this.position = position
-  }
-
-  getMaxLife() {
-    return this.maxLife
-  }
-
   takeDamage() {
     if (this.life > 0) {
       this.life--
@@ -60,7 +48,6 @@ class Player {
     else if (degree > -112.5 && degree <= -22.5) {
       return { x: 0 * TILE_SIZE, y: 0 * TILE_SIZE}
     }
-
 
     // default
     return { x: 0 * TILE_SIZE, y: 0 * TILE_SIZE}

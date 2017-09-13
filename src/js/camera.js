@@ -46,7 +46,7 @@ class Camera {
   }
 
   update() {
-    var targetPos = this.target.getPosition()
+    var targetPos = this.target.position
     if(targetPos.x - this.xView  + this.xDeadZone > this.wViewPort) {
       this.xView = targetPos.x - (this.wViewPort - this.xDeadZone)
     }

@@ -8,13 +8,8 @@ class Hud {
     this.ctx = ctx
   }
 
-  setLifeBarPos(x, y) {
-    this.lifeBarRect.set(x, y)
-  }
-
   getLifeBarPos() {
     return { x: this.lifeBarRect.left, y: this.lifeBarRect.top }
-
   }
 
   getTileImage(tileName) {

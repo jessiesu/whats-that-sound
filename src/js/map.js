@@ -43,19 +43,11 @@ class Map {
     }
   }
 
-  setPlayerStartPos(position) {
-    this.playerPos = position
-  }
-
-  getPlayerStartPos() {
-    return this.playerPos
-  }
-
   initialize() {
     for(var i = 0; i < this.height; i++) {
       for(var j = 0; j < this.width; j++) {
-        if (this.data[i][j] == PLAYER_START && this.getPlayerStartPos() == null) {
-          this.setPlayerStartPos({ x: j*TILE_SIZE, y: i*TILE_SIZE })
+        if (this.data[i][j] == PLAYER_START && this.playerPos == null) {
+          this.playerPos = { x: j*TILE_SIZE, y: i*TILE_SIZE }
         }
       }
     }
