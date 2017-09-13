@@ -1,13 +1,13 @@
 var SCALE = 8
-var TILE_SIZE = 16
-var HALF_TILE = TILE_SIZE / 2
+var TILE = 16
+var HALF_TILE = TILE / 2
 var MAP_SIZE_X = 20
 var MAP_SIZE_Y = 20
-var PLAYER_HITBOX_SIZE = 12
-var COLLISION_CHECK_RANGE = 2
+var PLAYER_HITBOX = 12
+var COLLISION_RANGE = 2
 var DESTINATION_RANGE = 5
-var CANVAS_WIDTH = 60 * TILE_SIZE
-var CANVAS_HEIGHT = 40 * TILE_SIZE
+var CANVAS_W = 60 * TILE
+var CANVAS_H = 40 * TILE
 var OFFSCREEN = { x: -100, y: -100 }
 var WARNING_TIME = 3000
 var DANGER_TIME = 2000
@@ -44,14 +44,14 @@ function startGame() {
   map = new Map(1)
   player = new Player(map.playerPos || { x: 190, y: 60 }, 3, 2.5 / SCALE)
   enemy = new Enemy(OFFSCREEN)
-  camera = new Camera(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT, map.width * TILE_SIZE, map.height * TILE_SIZE, SCALE)
-  camera.setDeadZone(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2)
+  camera = new Camera(0, 0, CANVAS_W, CANVAS_H, map.width * TILE, map.height * TILE, SCALE)
+  camera.setDeadZone(CANVAS_W / 2, CANVAS_H / 2)
   camera.follow(player)
-  hud = new Hud(player.life, CANVAS_WIDTH, CANVAS_HEIGHT)
+  hud = new Hud(player.life, CANVAS_W, CANVAS_H)
 
   canvas = document.getElementById('gameCanvas')
-  canvas.width = CANVAS_WIDTH
-  canvas.height = CANVAS_HEIGHT
+  canvas.width = CANVAS_W
+  canvas.height = CANVAS_H
   ctx = canvas.getContext('2d')
   ctx.scale(SCALE,SCALE)
   ctx.mozImageSmoothingEnabled = false
@@ -82,7 +82,7 @@ function draw() {
   drawPlayer()
   ctx.fillStyle = '#100'
   ctx.globalAlpha = 0.6
-  ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
+  ctx.fillRect(0, 0, CANVAS_W, CANVAS_H)
   ctx.globalAlpha = 1
   drawEnemy()
 
@@ -100,7 +100,7 @@ function draw() {
 
 function drawIntro() {
   ctx.fillStyle = '#000';
-  ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
+  ctx.fillRect(0, 0, CANVAS_W, CANVAS_H)
 
   ctx.fillStyle = '#FFF'
   ctx.font = '5px Courier New'
@@ -119,8 +119,8 @@ function drawIntro() {
 
 function drawTutorial() {
   ctx.fillStyle = '#000';
-  ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
-  ctx.drawImage(map.mapAsset, 1 * TILE_SIZE, 1 * TILE_SIZE, TILE_SIZE, TILE_SIZE, 55, 55 , TILE_SIZE / 2, TILE_SIZE / 2)
+  ctx.fillRect(0, 0, CANVAS_W, CANVAS_H)
+  ctx.drawImage(map.mapAsset, 1 * TILE, 1 * TILE, TILE, TILE, 55, 55 , TILE / 2, TILE / 2)
   ctx.fillStyle = '#FFF'
   ctx.font = '5px Courier New'
   ctx.textAlign="center"
@@ -139,8 +139,8 @@ function drawTutorial() {
 
 function drawOutro() {
   ctx.fillStyle = '#000';
-  ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
-  ctx.drawImage(map.mapAsset, 1 * TILE_SIZE, 1 * TILE_SIZE, TILE_SIZE, TILE_SIZE, 50, 45 , TILE_SIZE, TILE_SIZE)
+  ctx.fillRect(0, 0, CANVAS_W, CANVAS_H)
+  ctx.drawImage(map.mapAsset, 1 * TILE, 1 * TILE, TILE, TILE, 50, 45 , TILE, TILE)
 
   ctx.fillStyle = '#FFF'
   ctx.font = '5px Courier New'
@@ -180,32 +180,32 @@ function drawPlayer() {
 
   drawLight(position.x + HALF_TILE, position.y + HALF_TILE, 30)
 
-  ctx.drawImage(player.spriteAsset, player.sprite.x, player.sprite.y, TILE_SIZE, TILE_SIZE, position.x, position.y, TILE_SIZE, TILE_SIZE)
+  ctx.drawImage(player.spriteAsset, player.sprite.x, player.sprite.y, TILE, TILE, position.x, position.y, TILE, TILE)
 }
 
 function drawMap(tileType) {
 
   ctx.fillStyle = '#000';
-  ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
+  ctx.fillRect(0, 0, CANVAS_W, CANVAS_H)
 
-  var wall = { x: 3*TILE_SIZE, y: 0*TILE_SIZE }
-  var win = { x: 1*TILE_SIZE, y: 1*TILE_SIZE }
+  var wall = { x: 3*TILE, y: 0*TILE }
+  var win = { x: 1*TILE, y: 1*TILE }
 
   var viewport = camera.getViewport()
   // draw only visible tiles
-  var startCol = clamp(Math.floor(viewport.left / TILE_SIZE) - 1, 0, map.width)
-  var startRow = clamp(Math.floor(viewport.top / TILE_SIZE) - 1, 0, map.height)
-  var endCol = clamp(Math.ceil(viewport.right / TILE_SIZE) + 1, 0, map.width)
-  var endRow = clamp(Math.ceil(viewport.bottom / TILE_SIZE) + 1, 0, map.height)
+  var startCol = clamp(Math.floor(viewport.left / TILE) - 1, 0, map.width)
+  var startRow = clamp(Math.floor(viewport.top / TILE) - 1, 0, map.height)
+  var endCol = clamp(Math.ceil(viewport.right / TILE) + 1, 0, map.width)
+  var endRow = clamp(Math.ceil(viewport.bottom / TILE) + 1, 0, map.height)
 
   for(var i = startRow; i < endRow; i++) {
     for(var j = startCol; j < endCol; j++) {
       if (map.data[i][j] == WIN_TILE) {
-        ctx.drawImage(map.mapAsset, 2 * TILE_SIZE, TILE_SIZE, TILE_SIZE, TILE_SIZE, (j*TILE_SIZE) - viewport.left, (i*TILE_SIZE) - viewport.top, TILE_SIZE, TILE_SIZE)
-        ctx.drawImage(map.mapAsset, 1 * TILE_SIZE, 1 * TILE_SIZE, TILE_SIZE, TILE_SIZE, (j*TILE_SIZE) - viewport.left, (i*TILE_SIZE) - viewport.top, TILE_SIZE, TILE_SIZE)
+        ctx.drawImage(map.mapAsset, 2 * TILE, TILE, TILE, TILE, (j*TILE) - viewport.left, (i*TILE) - viewport.top, TILE, TILE)
+        ctx.drawImage(map.mapAsset, 1 * TILE, 1 * TILE, TILE, TILE, (j*TILE) - viewport.left, (i*TILE) - viewport.top, TILE, TILE)
       }
       else if (map.data[i][j] != WALL_TILE) {
-        ctx.drawImage(map.mapAsset, 2 * TILE_SIZE, TILE_SIZE, TILE_SIZE, TILE_SIZE, (j*TILE_SIZE) - viewport.left, (i*TILE_SIZE) - viewport.top, TILE_SIZE, TILE_SIZE)
+        ctx.drawImage(map.mapAsset, 2 * TILE, TILE, TILE, TILE, (j*TILE) - viewport.left, (i*TILE) - viewport.top, TILE, TILE)
       }
     }
   }
@@ -213,7 +213,7 @@ function drawMap(tileType) {
 
 function drawEnemy() {
   var position = camera.getWorldToScreenPos(enemy.position.x - HALF_TILE, enemy.position.y - HALF_TILE)
-  ctx.drawImage(enemy.spriteAsset, enemy.sprite.x, enemy.sprite.y, TILE_SIZE, TILE_SIZE, position.x, position.y, TILE_SIZE, TILE_SIZE)
+  ctx.drawImage(enemy.spriteAsset, enemy.sprite.x, enemy.sprite.y, TILE, TILE, position.x, position.y, TILE, TILE)
 }
 
 function drawHUD() {
@@ -222,10 +222,10 @@ function drawHUD() {
   var lifeBarPos = hud.getLifeBarPos()
   for (var i = 0; i < player.maxLife; i++) {
     if (i < player.life) {
-      ctx.drawImage(hud.spriteAsset, life.x, life.y, life.width, life.height, lifeBarPos.x + (i * TILE_SIZE / 2), lifeBarPos.y, life.width / 2, life.height / 2)
+      ctx.drawImage(hud.spriteAsset, life.x, life.y, life.width, life.height, lifeBarPos.x + (i * TILE / 2), lifeBarPos.y, life.width / 2, life.height / 2)
     }
     else {
-      ctx.drawImage(hud.spriteAsset, emptyLife.x, emptyLife.y, emptyLife.width, emptyLife.height, lifeBarPos.x + (i * TILE_SIZE / 2), lifeBarPos.y, emptyLife.width / 2, emptyLife.height / 2)
+      ctx.drawImage(hud.spriteAsset, emptyLife.x, emptyLife.y, emptyLife.width, emptyLife.height, lifeBarPos.x + (i * TILE / 2), lifeBarPos.y, emptyLife.width / 2, emptyLife.height / 2)
     }
   }
 
@@ -309,8 +309,8 @@ function createSprite(src) {
   var sprite = new Image()
   sprite.src = src
   sprite.context = ctx
-  sprite.width = TILE_SIZE
-  sprite.height = TILE_SIZE
+  sprite.width = TILE
+  sprite.height = TILE
 
   return sprite
 }
@@ -323,16 +323,16 @@ function createSFX(soundURL) {
 
 function checkPlayerCollision() {
   var playerPos = player.position
-  var playerRect = new Rectangle(playerPos.x - (PLAYER_HITBOX_SIZE / 2), playerPos.y - (PLAYER_HITBOX_SIZE / 2), PLAYER_HITBOX_SIZE, PLAYER_HITBOX_SIZE)
+  var playerRect = new Rectangle(playerPos.x - (PLAYER_HITBOX / 2), playerPos.y - (PLAYER_HITBOX / 2), PLAYER_HITBOX, PLAYER_HITBOX)
 
-  player.availableDir.up = !(map.getTileFromCoordinates(playerRect.left, playerRect.top - COLLISION_CHECK_RANGE) == WALL_TILE ||
-                             map.getTileFromCoordinates(playerRect.right, playerRect.top - COLLISION_CHECK_RANGE) == WALL_TILE)
-  player.availableDir.down = !(map.getTileFromCoordinates(playerRect.left, playerRect.bottom + COLLISION_CHECK_RANGE) == WALL_TILE ||
-                               map.getTileFromCoordinates(playerRect.right, playerRect.bottom + COLLISION_CHECK_RANGE) == WALL_TILE)
-  player.availableDir.left = !(map.getTileFromCoordinates(playerRect.left - COLLISION_CHECK_RANGE, playerRect.top) == WALL_TILE ||
-                               map.getTileFromCoordinates(playerRect.left - COLLISION_CHECK_RANGE, playerRect.bottom) == WALL_TILE)
-  player.availableDir.right = !(map.getTileFromCoordinates(playerRect.right + COLLISION_CHECK_RANGE, playerRect.top) == WALL_TILE ||
-                                map.getTileFromCoordinates(playerRect.right + COLLISION_CHECK_RANGE, playerRect.bottom) == WALL_TILE)
+  player.availableDir.up = !(map.getTileFromCoordinates(playerRect.left, playerRect.top - COLLISION_RANGE) == WALL_TILE ||
+                             map.getTileFromCoordinates(playerRect.right, playerRect.top - COLLISION_RANGE) == WALL_TILE)
+  player.availableDir.down = !(map.getTileFromCoordinates(playerRect.left, playerRect.bottom + COLLISION_RANGE) == WALL_TILE ||
+                               map.getTileFromCoordinates(playerRect.right, playerRect.bottom + COLLISION_RANGE) == WALL_TILE)
+  player.availableDir.left = !(map.getTileFromCoordinates(playerRect.left - COLLISION_RANGE, playerRect.top) == WALL_TILE ||
+                               map.getTileFromCoordinates(playerRect.left - COLLISION_RANGE, playerRect.bottom) == WALL_TILE)
+  player.availableDir.right = !(map.getTileFromCoordinates(playerRect.right + COLLISION_RANGE, playerRect.top) == WALL_TILE ||
+                                map.getTileFromCoordinates(playerRect.right + COLLISION_RANGE, playerRect.bottom) == WALL_TILE)
 }
 
 function checkPlayerPath() {

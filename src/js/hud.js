@@ -3,7 +3,7 @@ class Hud {
     this.life = life
     this.spriteAsset = createSprite("assets/img/hud.png")
 
-    this.lifeBarRect = new Rectangle(2, 2, TILE_SIZE * life, TILE_SIZE)
+    this.lifeBarRect = new Rectangle(2, 2, TILE * life, TILE)
 
     this.ctx = ctx
   }
@@ -15,11 +15,11 @@ class Hud {
   getTileImage(tileName) {
     switch (tileName) {
       case 'life':
-        return { x: 0*TILE_SIZE, y: 0*TILE_SIZE, width: TILE_SIZE, height: TILE_SIZE }
+        return { x: 0*TILE, y: 0*TILE, width: TILE, height: TILE }
       case 'emptyLife':
-        return { x: 1*TILE_SIZE, y: 0*TILE_SIZE, width: TILE_SIZE, height: TILE_SIZE }
+        return { x: 1*TILE, y: 0*TILE, width: TILE, height: TILE }
       default:
-        return { x: 0*TILE_SIZE, y: 0*TILE_SIZE, width: TILE_SIZE, height: TILE_SIZE }
+        return { x: 0*TILE, y: 0*TILE, width: TILE, height: TILE }
     }
   }
 }

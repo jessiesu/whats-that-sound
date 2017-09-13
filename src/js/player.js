@@ -34,22 +34,22 @@ class Player {
   getSpriteTile(degree) {
     // right
     if ((degree > -67.5 && degree <= 0) || (degree <= 67.5 && degree >= 0)) {
-      return { x: 3 * TILE_SIZE, y: 0 * TILE_SIZE}
+      return { x: 3 * TILE, y: 0 * TILE}
     }
     // bottom
     else if (degree > 67.5 && degree <= 157.5) {
-      return { x: 1 * TILE_SIZE, y:0 * TILE_SIZE}
+      return { x: 1 * TILE, y:0 * TILE}
     }
     // left
     else if ((degree > 157.5 && degree <= 180) || (degree <= -112.5 && degree >= -180)) {
-      return { x: 2 * TILE_SIZE, y: 0 * TILE_SIZE}
+      return { x: 2 * TILE, y: 0 * TILE}
     }
     // top
     else if (degree > -112.5 && degree <= -22.5) {
-      return { x: 0 * TILE_SIZE, y: 0 * TILE_SIZE}
+      return { x: 0 * TILE, y: 0 * TILE}
     }
 
     // default
-    return { x: 0 * TILE_SIZE, y: 0 * TILE_SIZE}
+    return { x: 0 * TILE, y: 0 * TILE}
   }
 }

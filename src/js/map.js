@@ -22,12 +22,12 @@ class Map {
 
   getTileFromCoordinates(x, y) {
     if (x < 0 || y < 0 ||
-      x > this.width * TILE_SIZE || y > this.height * TILE_SIZE) {
+      x > this.width * TILE || y > this.height * TILE) {
       return WALL_TILE
     }
     // returns the tile type on the given coordinate
-    var colIndex = Math.floor(x / TILE_SIZE)
-    var rowIndex = Math.floor(y / TILE_SIZE)
+    var colIndex = Math.floor(x / TILE)
+    var rowIndex = Math.floor(y / TILE)
     return this.data[rowIndex][colIndex]
   }
 
@@ -35,7 +35,7 @@ class Map {
     for(var i = 0; i < this.height; i++) {
       for(var j = 0; j < this.width; j++) {
         if (this.data[i][j] == PLAYER_START && this.playerPos == null) {
-          this.playerPos = { x: j*TILE_SIZE, y: i*TILE_SIZE }
+          this.playerPos = { x: j*TILE, y: i*TILE }
         }
       }
     }
