@@ -125,13 +125,13 @@ function drawTutorial() {
   ctx.font = '5px Courier New'
   ctx.textAlign="center"
   ctx.font = 'bold 6px Courier New'
-  ctx.fillText('Tap the screen to move.', 60, 10 )
+  ctx.fillText('Click and hold', 60, 10 )
+  ctx.fillText('the mouse to move.', 60, 18 )
   ctx.font = '5px Courier New'
-  ctx.fillText('A ghost haunts this dungeon and', 60, 18 )
-  ctx.fillText('it does not want you in certain', 60, 26 )
-  ctx.fillText('areas. You have a ring that warns', 60, 34)
-  ctx.fillText('you of danger. Listen to it and', 60, 42)
-  ctx.fillText('go find your staff.', 60, 50)
+  ctx.fillText('The ghost in  here does not want', 60, 26 )
+  ctx.fillText('you in certain areas. You have a ', 60, 34 )
+  ctx.fillText('ring that warns you of danger.', 60, 42)
+  ctx.fillText('Listen to it and go find your staff.', 60, 50)
 
   ctx.font = '3px Courier New'
   ctx.fillText('click to continue', 60, 68)
