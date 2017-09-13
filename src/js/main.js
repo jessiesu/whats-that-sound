@@ -1,3 +1,22 @@
+var SCALE = 8
+var TILE_SIZE = 16
+var HALF_TILE = TILE_SIZE / 2
+var MAP_SIZE_X = 20
+var MAP_SIZE_Y = 20
+var PLAYER_HITBOX_SIZE = 12
+var COLLISION_CHECK_RANGE = 2
+var DESTINATION_RANGE = 5
+var CANVAS_WIDTH = 60 * TILE_SIZE
+var CANVAS_HEIGHT = 40 * TILE_SIZE
+var OFFSCREEN = { x: -100, y: -100 }
+var WARNING_TIME = 3000
+var DANGER_TIME = 2000
+var STATE_INTRO = 0
+var STATE_TUTORIAL = 1
+var STATE_PLAY = 2
+var STATE_END = 3
+var STATE_OUTRO = 4
+
 var canvas
 var ctx
 var player
@@ -8,29 +27,12 @@ var hud
 var enemySpawnId = null
 var sfxLoopId = null
 var inputLocked = false
-var gameState = STATE_PLAY
+var gameState = STATE_INTRO
 
 var sfx_playerHit = createSFX([3,,0.0707,,0.2685,0.7213,,-0.3051,,,,,,,,,,,1,,,,,0.5])
 var sfx_warning = createSFX([0,,0.1884,,0.0365,0.464,,,,,,,,0.3026,,,,,1,,,0.1,,0.28])
 var sfx_gameOver = createSFX([1,0.2045,0.1804,0.1303,0.62,0.2308,,-0.2527,-0.0312,0.0561,,-0.1611,0.4463,0.0859,0.0137,0.4703,0.7618,0.0148,0.6813,-0.0014,,0.0008,-0.1493,0.5])
 var sfx_gameSuccess = createSFX([0,,0.01,0.3592,0.3356,0.729,,,,,,0.5557,0.6239,,,,,,1,,,,,0.5])
-
-var SCALE = 8
-var TILE_SIZE = 16
-var HALF_TILE = TILE_SIZE / 2
-var MAP_SIZE_X = 20
-var MAP_SIZE_Y = 20
-var PLAYER_HITBOX_SIZE = 12
-var COLLISION_CHECK_RANGE = 2
-var DESTINATION_RANGE = 5
-var CANVAS_WIDTH = 80 * TILE_SIZE
-var CANVAS_HEIGHT = 60 * TILE_SIZE
-var OFFSCREEN = { x: -100, y: -100 }
-var WARNING_TIME = 2500
-var DANGER_TIME = 1500
-var STATE_INTRO = 0
-var STATE_PLAY = 1
-var STATE_END = 2
 
 document.addEventListener("mousedown", mouseDown)
 document.addEventListener("mouseup", mouseUp)
@@ -38,7 +40,7 @@ document.addEventListener("mousemove", mouseMove)
 
 function startGame() {
   map = new Map(1)
-  player = new Player(map.playerPos || { x: 190, y: 60 }, 3, 3 / SCALE)
+  player = new Player(map.playerPos || { x: 190, y: 60 }, 3, 2.5 / SCALE)
   enemy = new Enemy(OFFSCREEN)
   camera = new Camera(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT, map.width * TILE_SIZE, map.height * TILE_SIZE, SCALE)
   camera.setDeadZone(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2)
@@ -54,6 +56,8 @@ function startGame() {
   ctx.imageSmoothingEnabled = false
 
   setInterval(update, 10)
+
+  lockInput(true)
 }
 
 function update() {
@@ -82,6 +86,72 @@ function draw() {
   drawEnemy()
 
   drawHUD()
+  if (gameState == STATE_INTRO) {
+    drawIntro()
+  }
+  else if (gameState == STATE_TUTORIAL) {
+    drawTutorial()
+  }
+  else if (gameState == STATE_OUTRO) {
+    drawOutro()
+  }
+}
+
+function drawIntro() {
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
+
+  ctx.fillStyle = '#FFF'
+  ctx.font = '5px Courier New'
+  ctx.textAlign="center"
+  ctx.fillText('You find yourself lost in', 60, 10 )
+  ctx.fillText('a haunted dungeon. They\'ve taken', 60, 18 )
+  ctx.fillText('away your powers. You must', 60, 26 )
+  ctx.fillText('find and retrieve your staff.', 60, 34)
+  ctx.fillText('But wait...', 60, 45)
+  ctx.font = 'bold 6px Courier New'
+  ctx.fillText('What\'s that sound?!', 60, 55)
+
+  ctx.font = '3px Courier New'
+  ctx.fillText('click to continue', 60, 65)
+}
+
+function drawTutorial() {
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
+  ctx.drawImage(map.mapAsset, 1 * TILE_SIZE, 1 * TILE_SIZE, TILE_SIZE, TILE_SIZE, 55, 55 , TILE_SIZE / 2, TILE_SIZE / 2)
+  ctx.fillStyle = '#FFF'
+  ctx.font = '5px Courier New'
+  ctx.textAlign="center"
+  ctx.font = 'bold 6px Courier New'
+  ctx.fillText('Tap the screen to move.', 60, 10 )
+  ctx.font = '5px Courier New'
+  ctx.fillText('A ghost haunts this dungeon and', 60, 18 )
+  ctx.fillText('it does not want you in certain', 60, 26 )
+  ctx.fillText('areas. You have a ring that warns', 60, 34)
+  ctx.fillText('you of danger. Listen to it and', 60, 42)
+  ctx.fillText('go find your staff.', 60, 50)
+
+  ctx.font = '3px Courier New'
+  ctx.fillText('click to continue', 60, 68)
+}
+
+function drawOutro() {
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
+  ctx.drawImage(map.mapAsset, 1 * TILE_SIZE, 1 * TILE_SIZE, TILE_SIZE, TILE_SIZE, 50, 42 , TILE_SIZE, TILE_SIZE)
+
+  ctx.fillStyle = '#FFF'
+  ctx.font = '5px Courier New'
+  ctx.textAlign="center"
+  ctx.font = 'bold 6px Courier New'
+  ctx.fillText('Congratulations!', 60, 20 )
+  ctx.font = '5px Courier New'
+  ctx.fillText('You found your staff and', 60, 28 )
+  ctx.fillText('survived the dungeon!', 60, 36 )
+
+  ctx.font = '3px Courier New'
+  ctx.fillText('click to play again', 60, 65)
 }
 
 function drawLight(x, y, radius, color) {
@@ -168,6 +238,17 @@ function mouseDown(event) {
     player.moving = true
     player.destination = getMousePos(canvas, event)
   }
+
+  if (gameState == STATE_INTRO) {
+    gameState = STATE_TUTORIAL
+  }
+  else if (gameState == STATE_TUTORIAL) {
+    gameState = STATE_PLAY
+    lockInput(false)
+  }
+  else if (gameState == STATE_OUTRO) {
+    setTimeout(function() { restartGame() }, 500)
+  }
 }
 
 function mouseUp(event) {
@@ -175,6 +256,8 @@ function mouseUp(event) {
 }
 
 function mouseMove(event) {
+  if (gameState != STATE_PLAY)
+    return
   if(!inputLocked && player.moving) {
     player.destination = getMousePos(canvas, event)
   }
@@ -302,7 +385,6 @@ function playerEnemyInteraction() {
 
   if (player.life == 0) {
     gameEnd(false)
-
   }
 }
 
@@ -321,6 +403,7 @@ function gameEnd(success) {
 
   if (success) {
     sfx_gameSuccess.play()
+    setTimeout(function() { gameState = STATE_OUTRO }, 500)
   }
   else {
     setTimeout(function() { sfx_gameOver.play() }, 500)
