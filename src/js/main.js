@@ -362,14 +362,18 @@ function checkPlayerPath() {
     else if (currentTile == WARNING_TILE) {
       // get time passed
       var timePassed = (new Date()).getTime() - enemy.startSpawnTime
-      if (timePassed < (WARNING_TIME - DANGER_TIME)) {
+      if (timePassed <= (WARNING_TIME - DANGER_TIME)) {
         clearTimeout(enemySpawnId)
         enemySpawnId =  setTimeout(function() { playerEnemyInteraction() }, DANGER_TIME)
+
+        clearInterval(sfxLoopId)
+        sfxLoopId = null
+        sfxLoopId = setInterval(function() { playWarningLoop(300 / DANGER_TIME) }, 300)
       }
 
-      clearInterval(sfxLoopId)
-      sfxLoopId = null
-      sfxLoopId = setInterval(function() { playWarningLoop(300 / DANGER_TIME) }, 300)
+      if (enemySpawnId == null) {
+        enemySpawnId = setTimeout(function() { playerEnemyInteraction() }, DANGER_TIME)
+      }
     }
 
     player.currentTile = DANGER_TILE
@@ -379,6 +383,7 @@ function checkPlayerPath() {
   }
   else {
     clearTimeout(enemySpawnId)
+    enemySpawnId = null;
     clearInterval(sfxLoopId)
     sfxLoopId = null
     player.currentTile = SAFE_TILE
