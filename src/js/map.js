@@ -1,4 +1,4 @@
-var GRASS_TILE = 1;
+var FLOOR_TILE = 1;
 var WALL_TILE = null;
 var PLAYER_START = 5;
 var PATH_SAFE_TILE = 2;
@@ -9,7 +9,7 @@ var PATH_DANGER_TILE = 7;
 class Map {
   constructor(level) {
     this.level = level;
-    this.mapAsset = createSprite("assets/img/map.png");
+    this.mapAsset = createSprite("assets/img/sprites.png");
 
     this.data = level_1;
 
@@ -34,7 +34,7 @@ class Map {
   getTileImage(tileName) {
     switch (tileName) {
       case 'grass':
-        return { x: 0*TILE_SIZE, y: 1*TILE_SIZE, width: TILE_SIZE, height: TILE_SIZE };
+        return { x: 0*TILE_SIZE, y: 0*TILE_SIZE, width: TILE_SIZE, height: TILE_SIZE };
       case 'wall':
         return { x: 3*TILE_SIZE, y: 0*TILE_SIZE, width: TILE_SIZE, height: TILE_SIZE * 2 };
       default:

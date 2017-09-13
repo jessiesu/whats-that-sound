@@ -26,8 +26,8 @@ var DESTINATION_RANGE = 5;
 var CANVAS_WIDTH = 50 * TILE_SIZE;
 var CANVAS_HEIGHT = 40 * TILE_SIZE;
 var OFFSCREEN = { x: -100, y: -100 }
-var WARNING_TIME = 5000;
-var DANGER_TIME = 2000;
+var WARNING_TIME = 3000;
+var DANGER_TIME = 1500;
 var STATE_INTRO = 0;
 var STATE_PLAY = 1;
 var STATE_END = 2;
@@ -38,7 +38,7 @@ document.addEventListener("mousemove", mouseMove);
 
 function startGame() {
   map = new Map(1)
-  player = new Player(map.getPlayerStartPos() || { x: 190, y: 60 }, 1, 4 / SCALE);
+  player = new Player(map.getPlayerStartPos() || { x: 190, y: 60 }, 3, 3 / SCALE);
   enemy = new Enemy(OFFSCREEN);
   camera = new Camera(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT, map.width * TILE_SIZE, map.height * TILE_SIZE, SCALE)
   camera.setDeadZone(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
@@ -70,13 +70,13 @@ function update() {
 
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawMap(GRASS_TILE);
+  drawMap(FLOOR_TILE);
   drawPlayer();
   drawMap(WALL_TILE);
   drawEnemy();
 
-  ctx.fillStyle = '#001';
-  ctx.globalAlpha = 0.7;
+  ctx.fillStyle = '#100';
+  ctx.globalAlpha = 0.6;
   ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
   ctx.globalAlpha = 1;
 
@@ -124,10 +124,10 @@ function drawMap(tileType) {
   for(var i = startRow; i < endRow; i++) {
     for(var j = startCol; j < endCol; j++) {
       if (tileType == WALL_TILE && map.data[i][j] == WALL_TILE) {
-        ctx.drawImage(map.mapAsset, wall.x, wall.y, wall.width, wall.height, (j*TILE_SIZE) - viewport.left, ((i*TILE_SIZE) - viewport.top) - TILE_SIZE, wall.width, wall.height);
+        ctx.fillRect((j*TILE_SIZE) - viewport.left, ((i*TILE_SIZE) - viewport.top), TILE_SIZE, TILE_SIZE)
       }
-      else if (tileType == GRASS_TILE){
-        ctx.drawImage(map.mapAsset, grass.x, grass.y, TILE_SIZE, TILE_SIZE, (j*TILE_SIZE) - viewport.left, (i*TILE_SIZE) - viewport.top, TILE_SIZE, TILE_SIZE);
+      else if (tileType == FLOOR_TILE){
+        ctx.drawImage(map.mapAsset, 2 * TILE_SIZE, TILE_SIZE, TILE_SIZE, TILE_SIZE, (j*TILE_SIZE) - viewport.left, (i*TILE_SIZE) - viewport.top, TILE_SIZE, TILE_SIZE);
       }
     }
   }
@@ -286,8 +286,6 @@ function checkPlayerPath() {
     player.currentTile = PATH_SAFE_TILE;
     sfx_warning.volume = 0;
   }
-
-
 }
 
 function playerEnemyInteraction() {
@@ -295,6 +293,7 @@ function playerEnemyInteraction() {
   player.takeDamage();
   sfx_playerHit.play();
   clearInterval(sfxLoopId);
+  sfx_warning.volume = 0;
 
   if (player.life == 0) {
     gameEnd(false)
@@ -302,12 +301,7 @@ function playerEnemyInteraction() {
   }
 }
 
-function increaseVolume(sfx, step) {
-  sfx.volume += step;
-}
-
 function playWarningLoop(volumeStep) {
-
   sfx_warning.play();
   if ((sfx_warning.volume + volumeStep) >= 1)
     sfx_warning.volume = 1;
@@ -333,6 +327,7 @@ function restartGame() {
   player.life = player.maxLife
   player.position = map.getPlayerStartPos()
   player.destination = null;
+  sfx_warning.volume = 0;
   lockInput(false)
   gameState = STATE_PLAY
 }

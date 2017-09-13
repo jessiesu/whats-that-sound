@@ -14,7 +14,7 @@ class Player {
       right: true
     }
 
-    this.spriteAsset = createSprite("assets/img/player.png");
+    this.spriteAsset = createSprite("assets/img/sprites.png");
     this.sprite = this.getSpriteTile(90);
     this.currentTile = PATH_SAFE_TILE;
     this.lastTile = PATH_SAFE_TILE;
@@ -44,30 +44,23 @@ class Player {
   }
 
   getSpriteTile(degree) {
-    if ((degree > -22.5 && degree <= 0) || (degree < 22.5 && degree >= 0)) {
-      return { x: 2 * TILE_SIZE, y: 0 * TILE_SIZE}
-    }
-    else if (degree >= 22.5 && degree <= 67.5) {
+    // right
+    if ((degree > -67.5 && degree <= 0) || (degree <= 67.5 && degree >= 0)) {
       return { x: 3 * TILE_SIZE, y: 0 * TILE_SIZE}
     }
-    else if (degree > 67.5 && degree < 112.5) {
-      return { x: 0 * TILE_SIZE, y: 1 * TILE_SIZE}
+    // bottom
+    else if (degree > 67.5 && degree <= 157.5) {
+      return { x: 1 * TILE_SIZE, y:0 * TILE_SIZE}
     }
-    else if (degree >= 112.5 && degree <= 157.5) {
-      return { x: 1 * TILE_SIZE, y: 1 * TILE_SIZE}
+    // left
+    else if ((degree > 157.5 && degree <= 180) || (degree <= -112.5 && degree >= -180)) {
+      return { x: 2 * TILE_SIZE, y: 0 * TILE_SIZE}
     }
-    else if ((degree > 157.5 && degree <= 180) || (degree <= -157.5 && degree >= -180)) {
-      return { x: 2 * TILE_SIZE, y: 1 * TILE_SIZE}
-    }
-    else if (degree >= -157.5 && degree <= -112.5) {
-      return { x: 3 * TILE_SIZE, y: 1 * TILE_SIZE}
-    }
-    else if (degree > -112.5 && degree < -67.5) {
+    // top
+    else if (degree > -112.5 && degree <= -22.5) {
       return { x: 0 * TILE_SIZE, y: 0 * TILE_SIZE}
     }
-    else if (degree >= -67.5 && degree <= -22.5) {
-      return { x: 1 * TILE_SIZE, y: 0 * TILE_SIZE}
-    }
+
 
     // default
     return { x: 0 * TILE_SIZE, y: 0 * TILE_SIZE}
