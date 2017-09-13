@@ -74,15 +74,39 @@ function draw() {
   drawPlayer();
   drawMap(WALL_TILE);
   drawEnemy();
+
+  ctx.fillStyle = '#001';
+  ctx.globalAlpha = 0.7;
+  ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+  ctx.globalAlpha = 1;
+
   drawHUD();
+}
+
+function drawLight(x, y, radius, color) {
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  var radialGradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
+  radialGradient.addColorStop(0.0, '#AA9');
+  radialGradient.addColorStop(0.2, '#885');
+  radialGradient.addColorStop(0.7, '#220');
+  radialGradient.addColorStop(0.95, '#110');
+  radialGradient.addColorStop(1, '#000');
+  ctx.fillStyle = radialGradient;
+  ctx.beginPath();
+  ctx.arc(x, y, radius, 0, 2 * Math.PI);
+  ctx.fill();
+  ctx.restore();
 }
 
 function drawPlayer() {
   var position = {};
   position.x = player.getPosition().x - HALF_TILE;
   position.y = player.getPosition().y - HALF_TILE;
-
   position = camera.getWorldToScreenPos(position.x, position.y)
+
+  drawLight(position.x + HALF_TILE, position.y + HALF_TILE, 30);
+
   ctx.drawImage(player.spriteAsset, player.sprite.x, player.sprite.y, TILE_SIZE, TILE_SIZE, position.x, position.y, TILE_SIZE, TILE_SIZE);
 }
 
@@ -100,7 +124,6 @@ function drawMap(tileType) {
   for(var i = startRow; i < endRow; i++) {
     for(var j = startCol; j < endCol; j++) {
       if (tileType == WALL_TILE && map.data[i][j] == WALL_TILE) {
-        ctx.drawImage(map.mapAsset, grass.x, grass.y, grass.width, grass.height, (j*TILE_SIZE) - viewport.left, (i*TILE_SIZE) - viewport.top, grass.width, grass.height);
         ctx.drawImage(map.mapAsset, wall.x, wall.y, wall.width, wall.height, (j*TILE_SIZE) - viewport.left, ((i*TILE_SIZE) - viewport.top) - TILE_SIZE, wall.width, wall.height);
       }
       else if (tileType == GRASS_TILE){
@@ -120,7 +143,6 @@ function drawHUD() {
   var emptyLife = hud.getTileImage('emptyLife');
   var lifeBarPos = hud.getLifeBarPos();
   for (var i = 0; i < player.getMaxLife(); i++) {
-    console.log(player.life)
     if (i < player.life) {
       ctx.drawImage(hud.spriteAsset, life.x, life.y, life.width, life.height, lifeBarPos.x + (i * TILE_SIZE / 2), lifeBarPos.y, life.width / 2, life.height / 2);
     }
@@ -309,7 +331,6 @@ function gameEnd(success) {
 
 function restartGame() {
   player.life = player.maxLife
-  console.log(player.maxLife)
   player.position = map.getPlayerStartPos()
   player.destination = null;
   lockInput(false)
