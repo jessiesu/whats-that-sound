@@ -7,11 +7,15 @@ var camera;
 var hud;
 var enemySpawnId = null;
 var sfxLoopId = null;
+var inputLocked = false;
+var gameState = STATE_INTRO;
 
 var sfx_playerHit = createSFX([3,,0.0707,,0.2685,0.7213,,-0.3051,,,,,,,,,,,1,,,,,0.5]);
 var sfx_warning = createSFX([0,,0.1884,,0.0365,0.464,,,,,,,,0.3026,,,,,1,,,0.1,,0.28]);
+var sfx_gameOver = createSFX([1,0.2045,0.1804,0.1303,0.62,0.2308,,-0.2527,-0.0312,0.0561,,-0.1611,0.4463,0.0859,0.0137,0.4703,0.7618,0.0148,0.6813,-0.0014,,0.0008,-0.1493,0.5])
+var sfx_gameSuccess = createSFX([0,,0.01,0.3592,0.3356,0.729,,,,,,0.5557,0.6239,,,,,,1,,,,,0.5])
 
-var SCALE = 6;
+var SCALE = 8;
 var TILE_SIZE = 16;
 var HALF_TILE = TILE_SIZE / 2;
 var MAP_SIZE_X = 20;
@@ -24,6 +28,9 @@ var CANVAS_HEIGHT = 40 * TILE_SIZE;
 var OFFSCREEN = { x: -100, y: -100 }
 var WARNING_TIME = 5000;
 var DANGER_TIME = 2000;
+var STATE_INTRO = 0;
+var STATE_PLAY = 1;
+var STATE_END = 2;
 
 document.addEventListener("mousedown", mouseDown);
 document.addEventListener("mouseup", mouseUp);
@@ -31,7 +38,7 @@ document.addEventListener("mousemove", mouseMove);
 
 function startGame() {
   map = new Map(1)
-  player = new Player(map.getPlayerStartPos() || { x: 190, y: 60 }, 3, 4 / SCALE);
+  player = new Player(map.getPlayerStartPos() || { x: 190, y: 60 }, 1, 4 / SCALE);
   enemy = new Enemy(OFFSCREEN);
   camera = new Camera(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT, map.width * TILE_SIZE, map.height * TILE_SIZE, SCALE)
   camera.setDeadZone(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
@@ -113,7 +120,8 @@ function drawHUD() {
   var emptyLife = hud.getTileImage('emptyLife');
   var lifeBarPos = hud.getLifeBarPos();
   for (var i = 0; i < player.getMaxLife(); i++) {
-    if (i < player.getLife()) {
+    console.log(player.life)
+    if (i < player.life) {
       ctx.drawImage(hud.spriteAsset, life.x, life.y, life.width, life.height, lifeBarPos.x + (i * TILE_SIZE / 2), lifeBarPos.y, life.width / 2, life.height / 2);
     }
     else {
@@ -128,8 +136,10 @@ function clamp(num, min, max) {
 
 // Input
 function mouseDown(event) {
-  player.moving = true;
-  player.destination = getMousePos(canvas, event);;
+  if (!inputLocked) {
+    player.moving = true;
+    player.destination = getMousePos(canvas, event);
+  }
 }
 
 function mouseUp(event) {
@@ -137,7 +147,7 @@ function mouseUp(event) {
 }
 
 function mouseMove(event) {
-  if(player.moving) {
+  if(!inputLocked && player.moving) {
     player.destination = getMousePos(canvas, event);;
   }
 }
@@ -215,7 +225,6 @@ function checkPlayerPath() {
 
       enemySpawnId =  setTimeout(function() { playerEnemyInteraction() }, WARNING_TIME);
       if (!sfxLoopId) {
-        console.log(sfxLoopId)
         sfxLoopId = setInterval(function() { playWarningLoop(500 / WARNING_TIME) }, 500);
       }
     }
@@ -226,7 +235,6 @@ function checkPlayerPath() {
     if (currentTile == PATH_SAFE_TILE) {
       enemy.startSpawnTime = (new Date()).getTime();
       enemySpawnId =  setTimeout(function() { playerEnemyInteraction() }, DANGER_TIME);
-      console.log(DANGER_TIME / 1000000)
       if (!sfxLoopId)
         sfxLoopId = setInterval(function() { playWarningLoop(300 / DANGER_TIME) }, 300);
     }
@@ -245,6 +253,10 @@ function checkPlayerPath() {
 
     player.currentTile = PATH_DANGER_TILE;
   }
+  else if (map.getTileFromCoordinates(position.x, position.y) == EXIT_TILE && gameState == STATE_PLAY) {
+    gameEnd(true);
+
+  }
   else {
     clearTimeout(enemySpawnId);
     clearInterval(sfxLoopId);
@@ -252,6 +264,8 @@ function checkPlayerPath() {
     player.currentTile = PATH_SAFE_TILE;
     sfx_warning.volume = 0;
   }
+
+
 }
 
 function playerEnemyInteraction() {
@@ -259,6 +273,11 @@ function playerEnemyInteraction() {
   player.takeDamage();
   sfx_playerHit.play();
   clearInterval(sfxLoopId);
+
+  if (player.life == 0) {
+    gameEnd(false)
+
+  }
 }
 
 function increaseVolume(sfx, step) {
@@ -272,6 +291,32 @@ function playWarningLoop(volumeStep) {
     sfx_warning.volume = 1;
   else
     sfx_warning.volume += volumeStep;
+}
 
-  console.log(sfxLoopId)
+function gameEnd(success) {
+  lockInput(true)
+
+  gameState = STATE_END;
+
+  if (success) {
+    sfx_gameSuccess.play();
+  }
+  else {
+    setTimeout(function() { sfx_gameOver.play() }, 500)
+    setTimeout(function() { restartGame() }, 500)
+  }
+}
+
+function restartGame() {
+  player.life = player.maxLife
+  console.log(player.maxLife)
+  player.position = map.getPlayerStartPos()
+  player.destination = null;
+  lockInput(false)
+  gameState = STATE_PLAY
+}
+
+function lockInput(lock) {
+  inputLocked = lock;
+  player.moving = false;
 }

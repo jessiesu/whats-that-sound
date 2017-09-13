@@ -1,7 +1,8 @@
 var GRASS_TILE = 1;
-var WALL_TILE = 3;
+var WALL_TILE = null;
 var PLAYER_START = 5;
 var PATH_SAFE_TILE = 2;
+var EXIT_TILE = 4;
 var PATH_WARNING_TILE = 6;
 var PATH_DANGER_TILE = 7;
 

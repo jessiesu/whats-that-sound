@@ -1,5 +1,6 @@
 class Player {
   constructor(position, life, speed) {
+    this.startPos = position
     this.position = position
     this.maxLife = life;
     this.life = life;
@@ -25,10 +26,6 @@ class Player {
 
   setPosition(position) {
     this.position = position;
-  }
-
-  getLife() {
-    return this.life;
   }
 
   getMaxLife() {
