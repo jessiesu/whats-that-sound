@@ -28,6 +28,8 @@ var enemySpawnId = null
 var sfxLoopId = null
 var inputLocked = false
 var gameState = STATE_INTRO
+var timer = 0
+var timerId = null
 
 var sfx_playerHit = createSFX([3,,0.0707,,0.2685,0.7213,,-0.3051,,,,,,,,,,,1,,,,,0.5])
 var sfx_warning = createSFX([0,,0.1884,,0.0365,0.464,,,,,,,,0.3026,,,,,1,,,0.1,,0.28])
@@ -74,7 +76,6 @@ function update() {
 
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height)
-//  drawMap(FLOOR_TILE)
 
   drawMap(WALL_TILE)
 
@@ -139,7 +140,7 @@ function drawTutorial() {
 function drawOutro() {
   ctx.fillStyle = '#000';
   ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
-  ctx.drawImage(map.mapAsset, 1 * TILE_SIZE, 1 * TILE_SIZE, TILE_SIZE, TILE_SIZE, 50, 42 , TILE_SIZE, TILE_SIZE)
+  ctx.drawImage(map.mapAsset, 1 * TILE_SIZE, 1 * TILE_SIZE, TILE_SIZE, TILE_SIZE, 50, 45 , TILE_SIZE, TILE_SIZE)
 
   ctx.fillStyle = '#FFF'
   ctx.font = '5px Courier New'
@@ -147,11 +148,12 @@ function drawOutro() {
   ctx.font = 'bold 6px Courier New'
   ctx.fillText('Congratulations!', 60, 20 )
   ctx.font = '5px Courier New'
-  ctx.fillText('You found your staff and', 60, 28 )
-  ctx.fillText('survived the dungeon!', 60, 36 )
+  ctx.fillText('You found your staff in', 60, 28 )
+  ctx.fillText(timer + ' seconds and', 60, 36 )
+  ctx.fillText('survived the dungeon!', 60, 42 )
 
   ctx.font = '3px Courier New'
-  ctx.fillText('click to play again', 60, 65)
+  ctx.fillText('click to play again', 60, 68)
 }
 
 function drawLight(x, y, radius, color) {
@@ -226,6 +228,11 @@ function drawHUD() {
       ctx.drawImage(hud.spriteAsset, emptyLife.x, emptyLife.y, emptyLife.width, emptyLife.height, lifeBarPos.x + (i * TILE_SIZE / 2), lifeBarPos.y, emptyLife.width / 2, emptyLife.height / 2)
     }
   }
+
+  ctx.fillStyle = '#FFF'
+  ctx.font = '5px Courier New'
+  ctx.textAlign="right"
+  ctx.fillText(timer, lifeBarPos.x + camera.wViewPort - 5, lifeBarPos.y + 5 )
 }
 
 function clamp(num, min, max) {
@@ -245,6 +252,9 @@ function mouseDown(event) {
   else if (gameState == STATE_TUTORIAL) {
     gameState = STATE_PLAY
     lockInput(false)
+    if (timerId != null)
+      clearInterval(timerId)
+    timerId = setInterval(function() { timer++ }, 1000)
   }
   else if (gameState == STATE_OUTRO) {
     setTimeout(function() { restartGame() }, 500)
@@ -412,12 +422,16 @@ function gameEnd(success) {
 }
 
 function restartGame() {
+  if (timerId != null)
+    clearInterval(timerId)
+  timer = 0;
   player.life = player.maxLife
   player.position = map.playerPos
   player.destination = null
   sfx_warning.volume = 0
   lockInput(false)
   gameState = STATE_PLAY
+  timerId = setInterval(function() { timer++ }, 1000)
 }
 
 function lockInput(lock) {
